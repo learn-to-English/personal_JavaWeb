@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import com.learning.service.AssignmentService;
+import com.learning.service.SubmissionService;
+import com.learning.model.Assignment;
+import com.learning.model.Submission;
 
 /**
  * 课程控制器
@@ -23,6 +27,12 @@ public class CourseController {
     // 注入课程业务类
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private AssignmentService assignmentService;
+
+    @Autowired
+    private SubmissionService submissionService;
 
     /**
      * 显示课程列表页面（所有人可访问）
@@ -43,10 +53,10 @@ public class CourseController {
     }
 
     /**
-     * 显示课程详情页面
+     * 显示课程详情页面（增强版：包含作业列表）
      */
     @RequestMapping("/detail.action")
-    public String detail(Integer id, Model model) {
+    public String detail(Integer id, Model model, HttpSession session) {
         Course course = courseService.getCourseById(id);
 
         if (course == null) {
@@ -54,9 +64,28 @@ public class CourseController {
         }
 
         model.addAttribute("course", course);
+
+        List<Assignment> assignmentList = assignmentService.getAssignmentsByCourse(id);
+        model.addAttribute("assignmentList", assignmentList);
+
+        // 如果是学生，检查每个作业的提交状态
+        User user = (User) session.getAttribute("user");
+        if (user != null && "student".equals(user.getRole())) {
+            for (Assignment assignment : assignmentList) {
+                Submission submission = submissionService.getSubmission(assignment.getId(), user.getId());
+                if (submission != null) {
+                    if ("graded".equals(submission.getStatus())) {
+                        assignment.setSubmitRate(2.0); // 已批改
+                    } else {
+                        assignment.setSubmitRate(1.0); // 已提交
+                    }
+                } else {
+                    assignment.setSubmitRate(0.0); // 未提交
+                }
+            }
+        }
         return "course/detail";
     }
-
     /**
      * 显示"我的课程"页面（教师查看自己创建的课程）
      */

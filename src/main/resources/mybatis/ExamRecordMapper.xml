@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.dao.ExamRecordMapper">
+    <resultMap id="recordMap" type="com.learning.model.ExamRecord">
+        <id column="id" property="id"/>
+        <result column="exam_id" property="examId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="submit_time" property="submitTime"/>
+        <result column="score" property="score"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="findByExamAndStudent" resultMap="recordMap">
+        SELECT * FROM exam_record WHERE exam_id = #{examId} AND student_id = #{studentId}
+    </select>
+
+    <insert id="insert" parameterType="com.learning.model.ExamRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exam_record (exam_id, student_id, start_time, status)
+        VALUES (#{examId}, #{studentId}, NOW(), 'ongoing')
+    </insert>
+
+    <update id="updateScore">
+        UPDATE exam_record SET score = #{score}, status = #{status}, submit_time = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

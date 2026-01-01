@@ -129,7 +129,6 @@
         /* 不同角色显示不同颜色 */
         .card.student { border-top: 4px solid #667eea; }
         .card.teacher { border-top: 4px solid #28a745; }
-        .card.admin { border-top: 4px solid #dc3545; }
 
         /* 角色标签 */
         .role-tag {
@@ -142,7 +141,6 @@
 
         .role-tag.student { background: #e7f3ff; color: #667eea; }
         .role-tag.teacher { background: #d4edda; color: #28a745; }
-        .role-tag.admin { background: #f8d7da; color: #dc3545; }
 
         /* 页脚 */
         .footer {
@@ -154,90 +152,144 @@
     </style>
 </head>
 <body>
-    <!-- 顶部导航 -->
-    <div class="header">
-        <div class="logo">📚 在线学习平台</div>
-        <div class="user-info">
-            <span>欢迎您，${sessionScope.user.username}</span>
-            <span class="role-tag ${sessionScope.user.role}">
+<!-- 顶部导航 -->
+<div class="header">
+    <div class="logo">📚 在线学习平台</div>
+    <div class="user-info">
+        <span>欢迎您，${sessionScope.user.username}</span>
+        <span class="role-tag ${sessionScope.user.role}">
                 <%
                     String role = ((com.learning.model.User)session.getAttribute("user")).getRole();
-                    if ("admin".equals(role)) {
-                        out.print("管理员");
-                    } else if ("teacher".equals(role)) {
+                    if ("teacher".equals(role)) {
                         out.print("教师");
                     } else {
                         out.print("学生");
                     }
                 %>
             </span>
-            <a href="${pageContext.request.contextPath}/user/logout.action" class="btn-logout">退出登录</a>
-        </div>
+        <a href="${pageContext.request.contextPath}/user/logout.action" class="btn-logout">退出登录</a>
     </div>
+</div>
 
-    <!-- 欢迎区域 -->
-    <div class="welcome-section">
-        <h1>🎓 欢迎来到在线学习平台</h1>
-        <p>开始您的学习之旅，探索知识的海洋</p>
+<!-- 欢迎区域 -->
+<div class="welcome-section">
+    <h1>🎓 欢迎来到在线学习平台</h1>
+    <p>开始您的学习之旅，探索知识的海洋</p>
+</div>
+
+<!-- 主要内容 -->
+<div class="main-content">
+    <div class="card-grid">
+
+        <!-- ========== 学生角色的卡片 ========== -->
+        <%
+            if ("student".equals(role)) {
+        %>
+        <!-- 浏览课程 -->
+        <a href="${pageContext.request.contextPath}/course/list.action" class="card student">
+            <div class="icon">📖</div>
+            <h3>浏览课程</h3>
+            <p>查看所有可选课程，发现感兴趣的内容</p>
+        </a>
+
+        <!-- 我的学习 -->
+        <a href="${pageContext.request.contextPath}/study/myList.action" class="card student">
+            <div class="icon">📝</div>
+            <h3>我的学习</h3>
+            <p>查看已选课程，继续学习进度</p>
+        </a>
+
+        <!-- 我的作业 -->
+        <a href="${pageContext.request.contextPath}/submission/list.action" class="card student">
+            <div class="icon">✍️</div>
+            <h3>我的作业</h3>
+            <p>查看和提交作业，查看成绩</p>
+        </a>
+
+        <!-- 通知公告 -->
+        <a href="${pageContext.request.contextPath}/notice/list.action" class="card student">
+            <div class="icon">📢</div>
+            <h3>通知公告</h3>
+            <p>查看课程通知和系统公告</p>
+        </a>
+
+        <!-- 所有用户：在线考试 -->
+        <a href="${pageContext.request.contextPath}/exam/list.action" class="card student">
+            <div class="icon">📝</div>
+            <h3>在线考试</h3>
+            <p>参加在线考试，检验学习成果</p>
+        </a>
+
+        <!-- 个人中心 -->
+        <a href="${pageContext.request.contextPath}/user/profile.action" class="card student">
+            <div class="icon">👤</div>
+            <h3>个人中心</h3>
+            <p>查看和修改个人信息</p>
+        </a>
+        <%
+            }
+        %>
+
+        <!-- ========== 教师角色的卡片 ========== -->
+        <%
+            if ("teacher".equals(role)) {
+        %>
+        <!-- 浏览课程 -->
+        <a href="${pageContext.request.contextPath}/course/list.action" class="card teacher">
+            <div class="icon">📖</div>
+            <h3>浏览课程</h3>
+            <p>查看所有课程</p>
+        </a>
+
+        <!-- 课程管理 -->
+        <a href="${pageContext.request.contextPath}/course/myList.action" class="card teacher">
+            <div class="icon">🎯</div>
+            <h3>课程管理</h3>
+            <p>管理我发布的课程，添加新课程</p>
+        </a>
+
+        <!-- 作业管理 -->
+        <a href="${pageContext.request.contextPath}/assignment/myList.action" class="card teacher">
+            <div class="icon">📋</div>
+            <h3>作业管理</h3>
+            <p>创建和管理作业，批改学生作业</p>
+        </a>
+
+        <!-- 教师：考试管理 -->
+        <%
+            if ("teacher".equals(role)) {
+        %>
+        <a href="${pageContext.request.contextPath}/exam/toCreate.action" class="card teacher">
+            <div class="icon">📝</div>
+            <h3>考试管理</h3>
+            <p>创建考试，添加题目</p>
+        </a>
+        <%
+            }
+        %>
+
+        <!-- 通知公告 -->
+        <a href="${pageContext.request.contextPath}/notice/list.action" class="card teacher">
+            <div class="icon">📢</div>
+            <h3>通知公告</h3>
+            <p>发布和查看通知公告</p>
+        </a>
+
+        <!-- 个人中心 -->
+        <a href="${pageContext.request.contextPath}/user/profile.action" class="card teacher">
+            <div class="icon">👤</div>
+            <h3>个人中心</h3>
+            <p>查看和修改个人信息</p>
+        </a>
+        <%
+            }
+        %>
     </div>
+</div>
 
-    <!-- 主要内容 -->
-    <div class="main-content">
-        <div class="card-grid">
-            
-            <!-- 所有用户都能看到：浏览课程 -->
-            <a href="${pageContext.request.contextPath}/course/list.action" class="card student">
-                <div class="icon">📖</div>
-                <h3>浏览课程</h3>
-                <p>查看所有可选课程，发现感兴趣的内容</p>
-            </a>
-
-            <!-- 所有用户都能看到：我的学习 -->
-            <a href="${pageContext.request.contextPath}/study/myList.action" class="card student">
-                <div class="icon">📝</div>
-                <h3>我的学习</h3>
-                <p>查看已选课程，继续学习进度</p>
-            </a>
-
-            <!-- 教师和管理员能看到：课程管理 -->
-            <%
-                if ("teacher".equals(role) || "admin".equals(role)) {
-            %>
-            <a href="${pageContext.request.contextPath}/course/myList.action" class="card teacher">
-                <div class="icon">🎯</div>
-                <h3>课程管理</h3>
-                <p>管理我发布的课程，添加新课程</p>
-            </a>
-            <%
-                }
-            %>
-
-            <!-- 管理员能看到：用户管理 -->
-            <%
-                if ("admin".equals(role)) {
-            %>
-            <a href="${pageContext.request.contextPath}/admin/userList.action" class="card admin">
-                <div class="icon">👥</div>
-                <h3>用户管理</h3>
-                <p>管理系统用户，审核教师申请</p>
-            </a>
-            <%
-                }
-            %>
-
-            <!-- 所有用户：个人中心 -->
-            <a href="${pageContext.request.contextPath}/user/profile.action" class="card student">
-                <div class="icon">👤</div>
-                <h3>个人中心</h3>
-                <p>查看和修改个人信息</p>
-            </a>
-
-        </div>
-    </div>
-
-    <!-- 页脚 -->
-    <div class="footer">
-        <p>© 2025 在线学习平台 - 课程设计作业</p>
-    </div>
+<!-- 页脚 -->
+<div class="footer">
+    <p>© 2026 在线学习平台 - 课程设计作业</p>
+</div>
 </body>
 </html>

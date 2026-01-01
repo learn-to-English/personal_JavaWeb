@@ -57,7 +57,7 @@
       font-weight: 500;
     }
 
-    .form-group input {
+    .form-group input, .form-group select {
       width: 100%;
       padding: 12px 15px;
       border: 1px solid #ddd;
@@ -66,10 +66,65 @@
       transition: border-color 0.3s;
     }
 
-    .form-group input:focus {
+    .form-group input:focus, .form-group select:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* 角色选择样式 */
+    .role-selection {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .role-option {
+      flex: 1;
+      position: relative;
+    }
+
+    .role-option input[type="radio"] {
+      display: none;
+    }
+
+    .role-option label {
+      display: block;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .role-option input[type="radio"]:checked + label {
+      border-color: #667eea;
+      background: #f0f4ff;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .role-option label:hover {
+      border-color: #667eea;
+    }
+
+    .role-option .role-icon {
+      font-size: 30px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .role-option .role-name {
+      font-size: 16px;
+      display: block;
+    }
+
+    .role-option .role-desc {
+      font-size: 12px;
+      color: #999;
+      display: block;
+      margin-top: 5px;
     }
 
     .register-btn {
@@ -149,6 +204,29 @@
   </div>
 
   <form id="registerForm">
+    <!-- 角色选择 -->
+    <div class="form-group">
+      <label>选择角色</label>
+      <div class="role-selection">
+        <div class="role-option">
+          <input type="radio" name="role" id="roleStudent" value="student" checked>
+          <label for="roleStudent">
+            <span class="role-icon">🎓</span>
+            <span class="role-name">学生</span>
+            <span class="role-desc">学习课程</span>
+          </label>
+        </div>
+        <div class="role-option">
+          <input type="radio" name="role" id="roleTeacher" value="teacher">
+          <label for="roleTeacher">
+            <span class="role-icon">👨‍🏫</span>
+            <span class="role-name">教师</span>
+            <span class="role-desc">发布课程</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label for="username">用户名</label>
       <input type="text" id="username" name="username" placeholder="请输入用户名" required>
@@ -169,14 +247,14 @@
     </div>
 
     <div class="form-group">
-      <label for="email">邮箱</label>
-      <input type="email" id="email" name="email" placeholder="请输入邮箱（可选）">
+      <label for="email">邮箱（可选）</label>
+      <input type="email" id="email" name="email" placeholder="请输入邮箱">
       <div class="error-msg" id="emailError"></div>
     </div>
 
     <div class="form-group">
-      <label for="phone">手机号</label>
-      <input type="tel" id="phone" name="phone" placeholder="请输入手机号（可选）">
+      <label for="phone">手机号（可选）</label>
+      <input type="tel" id="phone" name="phone" placeholder="请输入手机号">
       <div class="error-msg" id="phoneError"></div>
     </div>
 
@@ -218,26 +296,27 @@
       },
       body: 'username=' + encodeURIComponent(username)
     })
-            .then(response => response.json())
-            .then(data => {
-              usernameError.style.display = 'none';
-              if (data.exists) {
-                usernameCheck.textContent = '用户名已被占用';
-                usernameCheck.className = 'username-check error';
-                usernameCheck.style.display = 'block';
-              } else {
-                usernameCheck.textContent = '用户名可用';
-                usernameCheck.className = 'username-check ok';
-                usernameCheck.style.display = 'block';
-              }
-            });
+    .then(response => response.json())
+    .then(data => {
+      usernameError.style.display = 'none';
+      if (data.exists) {
+        usernameCheck.textContent = '用户名已被占用';
+        usernameCheck.className = 'username-check error';
+        usernameCheck.style.display = 'block';
+      } else {
+        usernameCheck.textContent = '用户名可用';
+        usernameCheck.className = 'username-check ok';
+        usernameCheck.style.display = 'block';
+      }
+    });
   });
 
   // 表单提交处理
   document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // 获取表单数据
+    // 获取选中的角色
+    var role = document.querySelector('input[name="role"]:checked').value;
     var username = document.getElementById('username').value.trim();
     var password = document.getElementById('password').value;
     var confirmPassword = document.getElementById('confirmPassword').value;
@@ -300,37 +379,38 @@
               '&password=' + encodeURIComponent(password) +
               '&confirmPassword=' + encodeURIComponent(confirmPassword) +
               '&email=' + encodeURIComponent(email) +
-              '&phone=' + encodeURIComponent(phone)
+              '&phone=' + encodeURIComponent(phone) +
+              '&role=' + encodeURIComponent(role)  // 添加角色参数
     })
-            .then(response => response.json())
-            .then(data => {
-              var registerError = document.getElementById('registerError');
-              var registerSuccess = document.getElementById('registerSuccess');
+    .then(response => response.json())
+    .then(data => {
+      var registerError = document.getElementById('registerError');
+      var registerSuccess = document.getElementById('registerSuccess');
 
-              if (data.success) {
-                registerSuccess.textContent = data.message;
-                registerSuccess.style.display = 'block';
-                registerError.style.display = 'none';
+      if (data.success) {
+        registerSuccess.textContent = data.message;
+        registerSuccess.style.display = 'block';
+        registerError.style.display = 'none';
 
-                // 清空表单
-                document.getElementById('registerForm').reset();
+        // 清空表单
+        document.getElementById('registerForm').reset();
 
-                // 3 秒后重定向到登录页
-                setTimeout(function() {
-                  window.location.href = '<%= request.getContextPath() %>/user/toLogin.action';
-                }, 3000);
-              } else {
-                registerError.textContent = data.message;
-                registerError.style.display = 'block';
-                registerSuccess.style.display = 'none';
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              var registerError = document.getElementById('registerError');
-              registerError.textContent = '注册请求失败，请检查网络';
-              registerError.style.display = 'block';
-            });
+        // 3 秒后重定向到登录页
+        setTimeout(function() {
+          window.location.href = '<%= request.getContextPath() %>/user/toLogin.action';
+        }, 3000);
+      } else {
+        registerError.textContent = data.message;
+        registerError.style.display = 'block';
+        registerSuccess.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      var registerError = document.getElementById('registerError');
+      registerError.textContent = '注册请求失败，请检查网络';
+      registerError.style.display = 'block';
+    });
   });
 
   // 简单的邮箱验证

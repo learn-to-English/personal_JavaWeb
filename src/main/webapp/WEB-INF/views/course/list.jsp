@@ -228,8 +228,14 @@
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/home.action">首页</a>
             <a href="${pageContext.request.contextPath}/course/list.action" class="active">全部课程</a>
+
             <c:if test="${not empty sessionScope.user}">
-                <a href="${pageContext.request.contextPath}/study/myList.action">我的学习</a>
+                <!-- 学生显示：我的学习 -->
+                <c:if test="${sessionScope.user.role == 'student'}">
+                    <a href="${pageContext.request.contextPath}/study/myList.action">我的学习</a>
+                </c:if>
+
+                <!-- 教师和管理员显示：课程管理 -->
                 <c:if test="${sessionScope.user.role == 'teacher' || sessionScope.user.role == 'admin'}">
                     <a href="${pageContext.request.contextPath}/course/myList.action">课程管理</a>
                 </c:if>

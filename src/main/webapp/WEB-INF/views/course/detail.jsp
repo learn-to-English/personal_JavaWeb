@@ -114,20 +114,42 @@
             text-decoration: none;
         }
 
-        .action-bar .btn-enroll {
-            padding: 15px 50px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.3s;
+        .action-buttons {
+            display: flex;
+            gap: 15px;
         }
 
-        .action-bar .btn-enroll:hover {
+        .btn-action {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-chapters {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        .btn-chapters:hover {
             transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(40,167,69,0.4);
+        }
+
+        .btn-enroll {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+
+        .btn-enroll:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255,107,107,0.4);
         }
 
         /* 主内容 */
@@ -216,6 +238,97 @@
             background: #f8d7da;
             color: #721c24;
         }
+
+        /* 作业列表样式 */
+        .assignment-list {
+            list-style: none;
+        }
+
+        .assignment-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .assignment-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .assignment-item .title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .assignment-item .meta {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .assignment-item .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .assignment-item .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .status-not-submitted { background: #fff3cd; color: #856404; }
+        .status-submitted { background: #cfe2ff; color: #084298; }
+        .status-graded { background: #d4edda; color: #155724; }
+
+        .assignment-item .btn-submit {
+            padding: 6px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+
+        .empty-assignments {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-assignments .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        /* 按钮容器 */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* 讨论区按钮 */
+        .btn-discussion {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .btn-discussion:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -250,14 +363,29 @@
     <div class="action-bar">
         <div class="container">
             <a href="${pageContext.request.contextPath}/course/list.action" class="btn-back">← 返回课程列表</a>
-            <c:choose>
-                <c:when test="${empty sessionScope.user}">
-                    <a href="${pageContext.request.contextPath}/user/toLogin.action" class="btn-enroll">登录后选课</a>
-                </c:when>
-                <c:otherwise>
-                    <button class="btn-enroll" onclick="enrollCourse(${course.id})">立即选课</button>
-                </c:otherwise>
-            </c:choose>
+            <div class="action-buttons">
+                <!-- 查看章节按钮 - 所有人都能看到 -->
+                <a href="${pageContext.request.contextPath}/chapter/list.action?courseId=${course.id}" class="btn-action btn-chapters">
+                    📖 查看章节
+                </a>
+                
+                <!-- 选课按钮 - 仅学生能看到 -->
+                <c:choose>
+                    <c:when test="${empty sessionScope.user}">
+                        <a href="${pageContext.request.contextPath}/user/toLogin.action" class="btn-action btn-enroll">登录后选课</a>
+                    </c:when>
+                    <c:when test="${sessionScope.user.role == 'student'}">
+                        <button class="btn-action btn-enroll" onclick="enrollCourse(${course.id})">立即选课</button>
+                    </c:when>
+                </c:choose>
+
+                <!-- 新增：讨论区按钮 -->
+                <a href="${pageContext.request.contextPath}/discussion/list.action?courseId=${course.id}"
+                   class="btn-discussion">
+                    💬 课程讨论
+                </a>
+
+            </div>
         </div>
     </div>
 
@@ -295,11 +423,52 @@
         </div>
     </div>
 
+    <!-- 课程作业模块 -->
+    <div class="card">
+        <h2>📋 课程作业</h2>
+        <c:choose>
+            <c:when test="${not empty assignmentList}">
+                <ul class="assignment-list">
+                    <c:forEach var="assignment" items="${assignmentList}">
+                        <li class="assignment-item">
+                            <div class="title">📝 ${assignment.title}</div>
+                            <div class="meta">
+                                截止时间：<fmt:formatDate value="${assignment.deadline}" pattern="yyyy-MM-dd HH:mm"/> |
+                                满分：${assignment.totalScore}分
+                            </div>
+                            <div class="actions">
+                                <c:choose>
+                                    <c:when test="${assignment.submitRate == 2.0}">
+                                        <span class="status-badge status-graded">✅ 已批改</span>
+                                        <a href="${pageContext.request.contextPath}/submission/viewGrade.action?id=${assignment.id}" class="btn-submit">查看成绩</a>
+                                    </c:when>
+                                    <c:when test="${assignment.submitRate == 1.0}">
+                                        <span class="status-badge status-submitted">📤 已提交</span>
+                                        <a href="${pageContext.request.contextPath}/submission/toSubmit.action?id=${assignment.id}" class="btn-submit">查看详情</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="status-badge status-not-submitted">⏰ 未提交</span>
+                                        <a href="${pageContext.request.contextPath}/submission/toSubmit.action?id=${assignment.id}" class="btn-submit">去提交</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </c:when>
+            <c:otherwise>
+                <div class="empty-assignments">
+                    <div class="icon">📭</div>
+                    <p>该课程暂无作业</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
     <script>
-        // 选课功能
+        // 选课功能（仅学生）
         function enrollCourse(courseId) {
             if (confirm('确定要选修这门课程吗？')) {
-                // 发送选课请求
                 fetch('${pageContext.request.contextPath}/study/enroll.action?courseId=' + courseId, {
                     method: 'POST'
                 })
@@ -307,7 +476,6 @@
                 .then(data => {
                     showAlert(data.message, data.success ? 'success' : 'error');
                     if (data.success) {
-                        // 选课成功，3秒后刷新页面
                         setTimeout(function() {
                             location.reload();
                         }, 2000);
