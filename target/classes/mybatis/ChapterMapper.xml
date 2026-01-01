@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.dao.ChapterMapper">
+
+    <!-- 
+        结果映射：把数据库字段映射到Java对象属性
+        数据库用下划线命名，Java用驼峰命名
+    -->
+    <resultMap id="chapterMap" type="com.learning.model.Chapter">
+        <id column="id" property="id"/>
+        <result column="course_id" property="courseId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="video_url" property="videoUrl"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+        <result column="course_title" property="courseTitle"/>
+    </resultMap>
+
+    <!-- 根据课程ID查询所有章节（按排序序号升序） -->
+    <select id="findByCourseId" parameterType="int" resultMap="chapterMap">
+        SELECT 
+            ch.*,
+            c.title AS course_title
+        FROM chapter ch
+        LEFT JOIN course c ON ch.course_id = c.id
+        WHERE ch.course_id = #{courseId}
+        ORDER BY ch.sort_order ASC, ch.id ASC
+    </select>
+
+    <!-- 根据章节ID查询章节详情 -->
+    <select id="findById" parameterType="int" resultMap="chapterMap">
+        SELECT 
+            ch.*,
+            c.title AS course_title
+        FROM chapter ch
+        LEFT JOIN course c ON ch.course_id = c.id
+        WHERE ch.id = #{id}
+    </select>
+
+    <!-- 添加章节 -->
+    <insert id="insert" parameterType="com.learning.model.Chapter" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chapter (course_id, title, content, video_url, sort_order, create_time)
+        VALUES (#{courseId}, #{title}, #{content}, #{videoUrl}, #{sortOrder}, NOW())
+    </insert>
+
+    <!-- 更新章节 -->
+    <update id="update" parameterType="com.learning.model.Chapter">
+        UPDATE chapter
+        SET title = #{title},
+            content = #{content},
+            video_url = #{videoUrl},
+            sort_order = #{sortOrder}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除章节 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM chapter WHERE id = #{id}
+    </delete>
+
+    <!-- 获取课程的章节总数 -->
+    <select id="countByCourseId" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM chapter WHERE course_id = #{courseId}
+    </select>
+
+    <!-- 更新章节排序 -->
+    <update id="updateSortOrder">
+        UPDATE chapter SET sort_order = #{sortOrder} WHERE id = #{id}
+    </update>
+
+</mapper>

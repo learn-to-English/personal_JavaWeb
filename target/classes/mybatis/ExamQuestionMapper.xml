@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.dao.ExamQuestionMapper">
+    <resultMap id="questionMap" type="com.learning.model.ExamQuestion">
+        <id column="id" property="id"/>
+        <result column="exam_id" property="examId"/>
+        <result column="question_type" property="questionType"/>
+        <result column="question_text" property="questionText"/>
+        <result column="options" property="options"/>
+        <result column="correct_answer" property="correctAnswer"/>
+        <result column="score" property="score"/>
+        <result column="order_num" property="orderNum"/>
+    </resultMap>
+
+    <select id="findByExamId" parameterType="int" resultMap="questionMap">
+        SELECT * FROM exam_question WHERE exam_id = #{examId} ORDER BY order_num
+    </select>
+
+    <insert id="insert" parameterType="com.learning.model.ExamQuestion">
+        INSERT INTO exam_question (exam_id, question_type, question_text, options, correct_answer, score, order_num)
+        VALUES (#{examId}, #{questionType}, #{questionText}, #{options}, #{correctAnswer}, #{score}, #{orderNum})
+    </insert>
+</mapper>

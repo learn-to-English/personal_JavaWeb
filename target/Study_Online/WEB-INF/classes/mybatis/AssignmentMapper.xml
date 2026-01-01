@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.dao.AssignmentMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="assignmentMap" type="com.learning.model.Assignment">
+        <id column="id" property="id"/>
+        <result column="course_id" property="courseId"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="deadline" property="deadline"/>
+        <result column="create_time" property="createTime"/>
+        <result column="course_name" property="courseName"/>
+        <result column="submission_count" property="submissionCount"/>
+        <result column="total_students" property="totalStudents"/>
+    </resultMap>
+
+    <!-- 根据课程ID查询作业 -->
+    <select id="findByCourseId" parameterType="int" resultMap="assignmentMap">
+        SELECT
+            a.*,
+            c.title AS course_name,
+            (SELECT COUNT(*) FROM submission s WHERE s.assignment_id = a.id) AS submission_count,
+            (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = a.course_id) AS total_students
+        FROM assignment a
+                 LEFT JOIN course c ON a.course_id = c.id
+        WHERE a.course_id = #{courseId}
+        ORDER BY a.deadline DESC
+    </select>
+
+    <!-- 根据教师ID查询所有作业 -->
+    <select id="findByTeacherId" parameterType="int" resultMap="assignmentMap">
+        SELECT
+            a.*,
+            c.title AS course_name,
+            (SELECT COUNT(*) FROM submission s WHERE s.assignment_id = a.id) AS submission_count,
+            (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = a.course_id) AS total_students
+        FROM assignment a
+                 LEFT JOIN course c ON a.course_id = c.id
+        WHERE c.teacher_id = #{teacherId}
+        ORDER BY a.deadline DESC
+    </select>
+
+    <!-- 根据学生ID查询作业（查询学生已选课程的所有作业）-->
+    <select id="findByStudentId" parameterType="int" resultMap="assignmentMap">
+        SELECT
+            a.*,
+            c.title AS course_name
+        FROM assignment a
+                 LEFT JOIN course c ON a.course_id = c.id
+        WHERE a.course_id IN (
+            SELECT course_id FROM enrollment WHERE student_id = #{studentId}
+        )
+        ORDER BY a.deadline DESC
+    </select>
+
+    <!-- 根据ID查询作业详情 -->
+    <select id="findById" parameterType="int" resultMap="assignmentMap">
+        SELECT
+            a.*,
+            c.title AS course_name,
+            (SELECT COUNT(*) FROM submission s WHERE s.assignment_id = a.id) AS submission_count,
+            (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = a.course_id) AS total_students
+        FROM assignment a
+                 LEFT JOIN course c ON a.course_id = c.id
+        WHERE a.id = #{id}
+    </select>
+
+    <!-- 添加作业 -->
+    <insert id="insert" parameterType="com.learning.model.Assignment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO assignment (course_id, title, description, total_score, deadline, create_time)
+        VALUES (#{courseId}, #{title}, #{description}, #{totalScore}, #{deadline}, NOW())
+    </insert>
+
+    <!-- 更新作业 -->
+    <update id="update" parameterType="com.learning.model.Assignment">
+        UPDATE assignment
+        SET title = #{title},
+            description = #{description},
+            total_score = #{totalScore},
+            deadline = #{deadline}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除作业 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM assignment WHERE id = #{id}
+    </delete>
+
+    <!-- 统计作业提交人数 -->
+    <select id="countSubmissions" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM submission WHERE assignment_id = #{assignmentId}
+    </select>
+
+    <!-- 统计课程学生总数 -->
+    <select id="countCourseStudents" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM enrollment WHERE course_id = #{courseId}
+    </select>
+
+</mapper>
