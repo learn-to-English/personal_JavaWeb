@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.dao.CourseMapper">
+
+    <!-- 
+        结果映射：把数据库字段映射到Java对象属性
+        数据库用下划线命名，Java用驼峰命名
+    -->
+    <resultMap id="courseMap" type="com.learning.model.Course">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="teacher_id" property="teacherId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="cover_image" property="coverImage"/>
+        <result column="status" property="status"/>
+        <result column="student_count" property="studentCount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="teacher_name" property="teacherName"/>
+        <result column="category_name" property="categoryName"/>
+    </resultMap>
+
+    <!-- 查询所有已发布的课程（关联查询教师名和分类名） -->
+    <select id="findAllPublished" resultMap="courseMap">
+        SELECT 
+            c.*,
+            u.username AS teacher_name,
+            cat.name AS category_name
+        FROM course c
+        LEFT JOIN user u ON c.teacher_id = u.id
+        LEFT JOIN category cat ON c.category_id = cat.id
+        WHERE c.status = 'published'
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 根据ID查询课程 -->
+    <select id="findById" parameterType="int" resultMap="courseMap">
+        SELECT 
+            c.*,
+            u.username AS teacher_name,
+            cat.name AS category_name
+        FROM course c
+        LEFT JOIN user u ON c.teacher_id = u.id
+        LEFT JOIN category cat ON c.category_id = cat.id
+        WHERE c.id = #{id}
+    </select>
+
+    <!-- 根据教师ID查询课程 -->
+    <select id="findByTeacherId" parameterType="int" resultMap="courseMap">
+        SELECT 
+            c.*,
+            u.username AS teacher_name,
+            cat.name AS category_name
+        FROM course c
+        LEFT JOIN user u ON c.teacher_id = u.id
+        LEFT JOIN category cat ON c.category_id = cat.id
+        WHERE c.teacher_id = #{teacherId}
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 根据关键词搜索课程 -->
+    <select id="searchByKeyword" parameterType="string" resultMap="courseMap">
+        SELECT 
+            c.*,
+            u.username AS teacher_name,
+            cat.name AS category_name
+        FROM course c
+        LEFT JOIN user u ON c.teacher_id = u.id
+        LEFT JOIN category cat ON c.category_id = cat.id
+        WHERE c.status = 'published'
+          AND (c.title LIKE CONCAT('%', #{keyword}, '%') 
+               OR c.description LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 添加课程 -->
+    <insert id="insert" parameterType="com.learning.model.Course" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course (title, description, teacher_id, category_id, status, create_time)
+        VALUES (#{title}, #{description}, #{teacherId}, #{categoryId}, #{status}, NOW())
+    </insert>
+
+    <!-- 更新课程 -->
+    <update id="update" parameterType="com.learning.model.Course">
+        UPDATE course
+        SET title = #{title},
+            description = #{description},
+            category_id = #{categoryId}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除课程 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM course WHERE id = #{id}
+    </delete>
+
+    <!-- 更新课程状态 -->
+    <update id="updateStatus">
+        UPDATE course SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <!-- 增加学生人数 -->
+    <update id="addStudentCount" parameterType="int">
+        UPDATE course SET student_count = student_count + 1 WHERE id = #{id}
+    </update>
+
+</mapper>
