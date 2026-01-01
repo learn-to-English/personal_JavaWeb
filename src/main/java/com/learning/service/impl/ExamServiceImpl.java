@@ -46,8 +46,14 @@ public class ExamServiceImpl implements ExamService {
 
     @Transactional
     public boolean submitExam(Integer recordId, Map<Integer, String> answers) {
-        List<ExamQuestion> questions = examQuestionMapper.findByExamId(
-                examRecordMapper.findByExamAndStudent(null, null).getExamId());
+        // 先根据recordId获取考试记录
+        ExamRecord record = examRecordMapper.findById(recordId);
+        if (record == null) {
+
+            return false;
+        }
+        // 获取考试题目列表
+        List<ExamQuestion> questions = examQuestionMapper.findByExamId(record.getExamId());
 
         BigDecimal totalScore = BigDecimal.ZERO;
 

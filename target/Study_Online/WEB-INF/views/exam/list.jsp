@@ -128,6 +128,22 @@
             transform: scale(1.05);
         }
 
+        .btn-home {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .btn-home:hover {
+            transform: scale(1.05);
+            background: #5a6268;
+        }
+
         .btn-disabled {
             background: #ccc;
             cursor: not-allowed;
@@ -188,8 +204,16 @@
                             <div class="exam-desc">${exam.description}</div>
                         </c:if>
 
-                        <a href="${pageContext.request.contextPath}/exam/start.action?examId=${exam.id}" class="btn-start">
-                            开始考试
+                        <!-- 学生：开始考试按钮 -->
+                        <c:if test="${sessionScope.user.role != 'teacher'}">
+                            <a href="${pageContext.request.contextPath}/exam/start.action?examId=${exam.id}" class="btn-start">
+                                开始考试
+                            </a>
+                        </c:if>
+
+                        <!-- 所有人：返回首页按钮 -->
+                        <a href="${pageContext.request.contextPath}/home.action" class="btn-home">
+                            返回首页
                         </a>
                     </div>
                 </c:forEach>

@@ -2,6 +2,7 @@ package com.learning.controller;
 import com.learning.model.*;
 import com.learning.service.ExamService;
 import com.learning.service.CourseService;
+import com.learning.dao.ExamRecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,9 @@ public class ExamController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private ExamRecordMapper examRecordMapper;
 
     /**
      * 考试列表
@@ -102,11 +106,31 @@ public class ExamController {
             return "redirect:/user/toLogin.action";
         }
 
-        ExamRecord record = examService.getExamRecord(null, user.getId());
+        // 根据recordId查询考试记录
+        ExamRecord record = examRecordMapper.findById(recordId);
+        if (record == null) {
+            return "redirect:/exam/list.action";
+        }
+
+        // 查询考试信息
+        Exam exam = examService.getExamById(record.getExamId());
+
+        // 查询学生的答案
         List<ExamAnswer> answers = examService.getExamAnswers(recordId);
 
+        // 查询所有题目（用于显示正确答案）
+        List<ExamQuestion> questions = examService.getExamQuestions(record.getExamId());
+
+        // 将题目信息关联到答案中（用Map方便查找）
+        Map<Integer, ExamQuestion> questionMap = new HashMap<>();
+        for (ExamQuestion q : questions) {
+            questionMap.put(q.getId(), q);
+        }
+
+        model.addAttribute("exam", exam);
         model.addAttribute("record", record);
         model.addAttribute("answers", answers);
+        model.addAttribute("questionMap", questionMap);
 
         return "exam/result";
     }

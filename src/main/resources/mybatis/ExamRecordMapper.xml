@@ -13,8 +13,13 @@
         <result column="status" property="status"/>
     </resultMap>
 
+    <!-- 这个方法缺失了！ -->
     <select id="findByExamAndStudent" resultMap="recordMap">
         SELECT * FROM exam_record WHERE exam_id = #{examId} AND student_id = #{studentId}
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="recordMap">
+        SELECT * FROM exam_record WHERE id = #{id}
     </select>
 
     <insert id="insert" parameterType="com.learning.model.ExamRecord" useGeneratedKeys="true" keyProperty="id">

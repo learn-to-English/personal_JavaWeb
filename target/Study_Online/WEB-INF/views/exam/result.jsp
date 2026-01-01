@@ -206,7 +206,7 @@
                 <div class="answer-detail">
                     你的答案：${answer.studentAnswer}
                     <c:if test="${answer.isCorrect != 1}">
-                        <br>正确答案：${answer.correctAnswer}
+                        <br>正确答案：${questionMap[answer.questionId].correctAnswer}
                     </c:if>
                 </div>
             </div>

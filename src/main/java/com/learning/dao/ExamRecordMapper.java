@@ -7,4 +7,5 @@ public interface ExamRecordMapper {
     ExamRecord findByExamAndStudent(@Param("examId") Integer examId, @Param("studentId") Integer studentId);
     int insert(ExamRecord record);
     int updateScore(@Param("id") Integer id, @Param("score") BigDecimal score, @Param("status") String status);
+    ExamRecord findById(Integer id);
 }

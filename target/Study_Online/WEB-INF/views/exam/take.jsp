@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -179,28 +180,47 @@
                 <div class="question-text">${question.questionText}</div>
 
                 <div class="options">
-                    <c:if test="${question.questionType == 'choice'}">
-                        <c:forEach var="option" items="${question.options.replaceAll('[\\[\\]\"]', '').split(',')}">
+                    <c:choose>
+                        <c:when test="${question.questionType == 'choice'}">
+                            <%-- 处理单选题选项 --%>
+                            <%
+                                com.learning.model.ExamQuestion q = (com.learning.model.ExamQuestion) pageContext.getAttribute("question");
+                                String optionsJson = q.getOptions();
+                                if (optionsJson != null && !optionsJson.isEmpty()) {
+                                    // 解析JSON: ["A. 选项1", "B. 选项2"]
+                                    optionsJson = optionsJson.replace("[", "").replace("]", "").replace("\"", "");
+                                    String[] options = optionsJson.split(",");
+
+                                    for (int i = 0; i < options.length; i++) {
+                                        String option = options[i].trim();
+                                        if (!option.isEmpty()) {
+                                            String optValue = option.length() > 0 ? option.substring(0, 1) : "";
+                            %>
                             <div class="option-item">
                                 <input type="radio"
-                                       name="answer_${question.id}"
-                                       value="${option.substring(0, 1)}"
-                                       id="q${question.id}_${option.substring(0, 1)}">
-                                <label for="q${question.id}_${option.substring(0, 1)}">${option.trim()}</label>
+                                       name="answer_<%= q.getId() %>"
+                                       value="<%= optValue %>"
+                                       id="q<%= q.getId() %>_opt<%= i %>">
+                                <label for="q<%= q.getId() %>_opt<%= i %>"><%= option %></label>
                             </div>
-                        </c:forEach>
-                    </c:if>
-
-                    <c:if test="${question.questionType == 'judge'}">
-                        <div class="option-item">
-                            <input type="radio" name="answer_${question.id}" value="正确" id="q${question.id}_T">
-                            <label for="q${question.id}_T">正确</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="radio" name="answer_${question.id}" value="错误" id="q${question.id}_F">
-                            <label for="q${question.id}_F">错误</label>
-                        </div>
-                    </c:if>
+                            <%
+                                        }
+                                    }
+                                }
+                            %>
+                        </c:when>
+                        <c:when test="${question.questionType == 'judge'}">
+                            <%-- 判断题选项 --%>
+                            <div class="option-item">
+                                <input type="radio" name="answer_${question.id}" value="正确" id="q${question.id}_T">
+                                <label for="q${question.id}_T">✓ 正确</label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="answer_${question.id}" value="错误" id="q${question.id}_F">
+                                <label for="q${question.id}_F">✗ 错误</label>
+                            </div>
+                        </c:when>
+                    </c:choose>
                 </div>
             </div>
         </c:forEach>
