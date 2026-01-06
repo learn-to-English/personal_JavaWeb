@@ -105,4 +105,9 @@
         UPDATE course SET student_count = student_count + 1 WHERE id = #{id}
     </update>
 
+    <!-- 减少学生人数 -->
+    <update id="reduceStudentCount" parameterType="int">
+        UPDATE course SET student_count = student_count - 1 WHERE id = #{id}
+    </update>
+
 </mapper>

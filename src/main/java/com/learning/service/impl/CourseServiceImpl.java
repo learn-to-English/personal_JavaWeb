@@ -2,6 +2,7 @@ package com.learning.service.impl;
 
 import com.learning.dao.CourseMapper;
 import com.learning.dao.CategoryMapper;
+import com.learning.dao.EnrollmentMapper;
 import com.learning.model.Course;
 import com.learning.model.Category;
 import com.learning.service.CourseService;
@@ -22,6 +23,10 @@ public class CourseServiceImpl implements CourseService {
     // 注入CategoryMapper
     @Autowired
     private CategoryMapper categoryMapper;
+
+    // 注入EnrollmentMapper
+    @Autowired
+    private EnrollmentMapper enrollmentMapper;
 
     /**
      * 获取所有已发布的课程
@@ -80,10 +85,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 删除课程
+     * 删除课程（同时删除相关选课记录）
      */
     @Override
     public boolean deleteCourse(Integer id) {
+        // 先删除该课程的所有选课记录
+        enrollmentMapper.deleteByCourseId(id);
+        // 再删除课程
         int result = courseMapper.delete(id);
         return result > 0;
     }

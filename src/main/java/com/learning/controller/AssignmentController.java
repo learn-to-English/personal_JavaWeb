@@ -38,8 +38,8 @@ public class AssignmentController {
             return "redirect:/user/toLogin.action";
         }
 
-        // 只有教师和管理员可以访问
-        if (!"teacher".equals(user.getRole()) && !"admin".equals(user.getRole())) {
+        // 只有教师可以访问
+        if (!"teacher".equals(user.getRole())) {
             return "redirect:/home.action";
         }
 
@@ -187,7 +187,7 @@ public class AssignmentController {
         }
 
         // 检查权限
-        if (!assignmentService.isTeacherAssignment(id, user.getId()) && !"admin".equals(user.getRole())) {
+        if (!assignmentService.isTeacherAssignment(id, user.getId())) {
             return "{\"success\": false, \"message\": \"无权修改此作业\"}";
         }
 

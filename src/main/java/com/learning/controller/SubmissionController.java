@@ -68,6 +68,11 @@ public class SubmissionController {
             return "redirect:/user/toLogin.action";
         }
 
+        // 教师不能提交作业
+        if ("teacher".equals(user.getRole()) || "admin".equals(user.getRole())) {
+            return "redirect:/assignment/myList.action";
+        }
+
         Assignment assignment = assignmentService.getAssignmentById(id);
         if (assignment == null) {
             return "redirect:/submission/list.action";
@@ -93,6 +98,11 @@ public class SubmissionController {
             return "{\"success\": false, \"message\": \"请先登录\"}";
         }
 
+        // 教师不能提交作业
+        if ("teacher".equals(user.getRole()) || "admin".equals(user.getRole())) {
+            return "{\"success\": false, \"message\": \"教师不能提交作业\"}";
+        }
+
         if (content == null || content.trim().isEmpty()) {
             return "{\"success\": false, \"message\": \"作业内容不能为空\"}";
         }
@@ -105,7 +115,7 @@ public class SubmissionController {
 
         // 检查是否过期
         if (assignmentService.isExpired(assignment)) {
-            return "{\"success\": false, \"message\": \"作业已过截止时间，无法提交\"}";
+            return "{\"success\": false, \"message\": \"作业已过截止时间,无法提交\"}";
         }
 
         Submission submission = new Submission();
@@ -118,7 +128,7 @@ public class SubmissionController {
         if (success) {
             return "{\"success\": true, \"message\": \"作业提交成功\"}";
         } else {
-            return "{\"success\": false, \"message\": \"提交失败，可能已批改无法重新提交\"}";
+            return "{\"success\": false, \"message\": \"提交失败,可能已批改无法重新提交\"}";
         }
     }
 

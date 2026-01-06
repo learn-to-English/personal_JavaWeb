@@ -18,6 +18,7 @@ public class Enrollment {
     private String courseDescription; // 课程简介
     private String teacherName;       // 教师姓名
     private String categoryName;      // 分类名称
+    private String courseStatus;      // 课程状态（published/draft/null表示已删除）
 
     // ========== Getter 和 Setter ==========
     
@@ -83,5 +84,13 @@ public class Enrollment {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public String getCourseStatus() {
+        return courseStatus;
+    }
+
+    public void setCourseStatus(String courseStatus) {
+        this.courseStatus = courseStatus;
     }
 }

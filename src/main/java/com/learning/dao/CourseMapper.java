@@ -54,4 +54,9 @@ public interface CourseMapper {
      * 增加学生人数（选课时调用）
      */
     int addStudentCount(Integer id);
+
+    /**
+     * 减少学生人数（退课时调用）
+     */
+    int reduceStudentCount(Integer id);
 }

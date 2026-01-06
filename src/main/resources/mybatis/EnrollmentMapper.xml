@@ -14,14 +14,19 @@
         <result column="course_description" property="courseDescription"/>
         <result column="teacher_name" property="teacherName"/>
         <result column="category_name" property="categoryName"/>
+        <result column="course_status" property="courseStatus"/>
     </resultMap>
 
-    <!-- 查询学生的所有选课记录（关联查询课程信息） -->
+    <!-- 查询学生的所有选课记录（关联查询课程信息，包括已删除/下架的课程） -->
     <select id="findByStudentId" parameterType="int" resultMap="enrollmentMap">
-        SELECT 
-            e.*,
+        SELECT
+            e.id,
+            e.student_id,
+            e.course_id,
+            e.enroll_time,
             c.title AS course_title,
             c.description AS course_description,
+            c.status AS course_status,
             u.username AS teacher_name,
             cat.name AS category_name
         FROM enrollment e
@@ -51,8 +56,13 @@
 
     <!-- 根据学生ID和课程ID删除 -->
     <delete id="deleteByStudentAndCourse">
-        DELETE FROM enrollment 
+        DELETE FROM enrollment
         WHERE student_id = #{studentId} AND course_id = #{courseId}
+    </delete>
+
+    <!-- 根据课程ID删除所有选课记录（课程删除时级联删除） -->
+    <delete id="deleteByCourseId" parameterType="int">
+        DELETE FROM enrollment WHERE course_id = #{courseId}
     </delete>
 
 </mapper>

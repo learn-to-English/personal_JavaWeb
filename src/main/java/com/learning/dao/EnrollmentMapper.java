@@ -33,6 +33,11 @@ public interface EnrollmentMapper {
     /**
      * 根据学生ID和课程ID删除
      */
-    int deleteByStudentAndCourse(@Param("studentId") Integer studentId, 
+    int deleteByStudentAndCourse(@Param("studentId") Integer studentId,
                                   @Param("courseId") Integer courseId);
+
+    /**
+     * 根据课程ID删除所有选课记录（课程删除时级联删除）
+     */
+    int deleteByCourseId(Integer courseId);
 }
